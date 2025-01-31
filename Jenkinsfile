@@ -1,41 +1,50 @@
 pipeline {
-    agent any  // Uses any available agent. Change if using a specific agent.
+    agent any  // Runs on any available Jenkins agent
 
     environment {
-        PYTHON_ENV = 'python3'  // Modify if a specific Python version is required
+        PYTHON_PATH = 'C:\\Python39\\python.exe'  // Change this if using a different Python version
     }
 
     stages {
         stage('Preparation') {
             steps {
-                echo "Starting Jenkins pipeline..."
-                sh '''
-                    sudo apt-get update && sudo apt-get install -y gcc libffi-dev libssl-dev python3-pip
+                echo "Starting Jenkins pipeline on Windows..."
+                bat '''
+                    echo Checking installed programs...
+                    where gcc
+                    where python
                 '''
             }
         }
 
         stage('Install Dependencies') {
             steps {
-                sh 'pip3 install -r requirements.txt'
+                bat '''
+                    echo Installing Python and GCC if not installed...
+                    choco install mingw -y
+                    choco install python -y
+                    set PATH=%PATH%;C:\\Program Files\\mingw-w64\\mingw64\\bin
+                '''
+                bat '%PYTHON_PATH% -m pip install --upgrade pip'
+                bat '%PYTHON_PATH% -m pip install telebot pymongo aiohttp'
             }
         }
 
         stage('Compile C Program') {
             steps {
-                sh 'gcc bgmi.c -o bgmi -pthread'
+                bat 'gcc bgmi.c -o bgmi -pthread'
             }
         }
 
         stage('Run Python Script') {
             steps {
-                sh 'python3 vector.py'
+                bat '%PYTHON_PATH% vector.py'
             }
         }
 
         stage('Completion') {
             steps {
-                echo "Pipeline completed successfully!"
+                echo "Pipeline completed successfully on Windows!"
             }
         }
     }
@@ -45,10 +54,7 @@ pipeline {
             echo "Build was successful!"
         }
         failure {
-            echo "Build failed. Please check logs."
-        }
-        always {
-            echo "Pipeline execution finished."
+            echo "Build failed. Check logs for details."
         }
     }
 }
