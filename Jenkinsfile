@@ -1,19 +1,54 @@
-image: atlassian/default-image:3
+pipeline {
+    agent any  // Uses any available agent. Change if using a specific agent.
 
+    environment {
+        PYTHON_ENV = 'python3'  // Modify if a specific Python version is required
+    }
 
-pipelines:
-  default:
-    - step:
-        size: 2x
-        script:
-          - echo "Starting pipeline..."
-          
-          - apt-get update && apt-get install -y gcc libffi-dev libssl-dev python3-pip
+    stages {
+        stage('Preparation') {
+            steps {
+                echo "Starting Jenkins pipeline..."
+                sh '''
+                    sudo apt-get update && sudo apt-get install -y gcc libffi-dev libssl-dev python3-pip
+                '''
+            }
+        }
 
-          - pip install telebot pymongo aiohttp
-          
-          - gcc bgmi.c -o bgmi -pthread
-          
-          - python3 vector.py
-          
-          - echo "I use atlassian-ip-ranges"
+        stage('Install Dependencies') {
+            steps {
+                sh 'pip3 install telebot pymongo aiohttp'
+            }
+        }
+
+        stage('Compile C Program') {
+            steps {
+                sh 'gcc bgmi.c -o bgmi -pthread'
+            }
+        }
+
+        stage('Run Python Script') {
+            steps {
+                sh 'python3 vector.py'
+            }
+        }
+
+        stage('Completion') {
+            steps {
+                echo "Pipeline completed successfully!"
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "Build was successful!"
+        }
+        failure {
+            echo "Build failed. Please check logs."
+        }
+        always {
+            echo "Pipeline execution finished."
+        }
+    }
+}
