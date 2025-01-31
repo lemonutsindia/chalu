@@ -1,21 +1,21 @@
 pipeline {
-    agent any
-
+    agent any  // Use any available agent (change if using a specific agent)
+    
     environment {
-        TELEBOT_API_KEY = credentials('8052073236:AAHXLFvJtenFtrDarJxAzog1puFCDhN7aLQ')  // Store API key securely in Jenkins credentials
+        PYTHON_ENV = 'python3'  // Adjust based on the system
     }
-
+    
     stages {
-        stage('Initialize') {
+        stage('Preparation') {
             steps {
-                echo "Starting Jenkins pipeline..."
+                echo "Starting pipeline..."
                 sh 'sudo apt-get update && sudo apt-get install -y gcc libffi-dev libssl-dev python3-pip'
             }
         }
 
         stage('Install Dependencies') {
             steps {
-                sh 'pip install telebot pymongo aiohttp'
+                sh 'pip3 install telebot pymongo aiohttp'
             }
         }
 
@@ -30,14 +30,20 @@ pipeline {
                 sh 'python3 vector.py'
             }
         }
-    }
 
+        stage('Completion') {
+            steps {
+                echo "Pipeline completed successfully!"
+            }
+        }
+    }
+    
     post {
         success {
-            echo "Pipeline execution completed successfully!"
+            echo "Build was successful!"
         }
         failure {
-            echo "Pipeline failed!"
+            echo "Build failed. Please check logs."
         }
     }
 }
