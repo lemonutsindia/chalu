@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        TELEBOT_API_KEY = credentials('TELEBOT_API_KEY')  // Store API key securely in Jenkins credentials
+        TELEBOT_API_KEY = credentials('8052073236:AAHXLFvJtenFtrDarJxAzog1puFCDhN7aLQ')  // Store API key securely in Jenkins credentials
     }
 
     stages {
